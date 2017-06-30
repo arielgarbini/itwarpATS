@@ -2,6 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Repositories\AddressRepository;
+use App\Repositories\CandidateOfferCommentRepository;
+use App\Repositories\CandidateRepository;
+use App\Repositories\CandidateWorkStatusRepository;
+use App\Repositories\ContactRepository;
+use App\Repositories\CountryRepository;
+use App\Repositories\OfferRepository;
+use App\Repositories\ProfileRepository;
+use App\Repositories\RelCandidateProfileRepository;
+use App\Repositories\SourceRepository;
+use App\Repositories\StateRepository;
+use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
@@ -18,8 +30,50 @@ class CandidateController extends Controller {
 	 *
 	 * @return void
 	 */
-    public function __construct()
+
+    private $users;
+
+    private $countries;
+
+    private $offers;
+
+    private $states;
+
+    private $contacts;
+
+    private $candidates;
+
+    private $candidatesOfferComments;
+
+    private $profiles;
+
+    private $sources;
+
+    private $address;
+
+    private $candidatesWorkStatus;
+
+    private $relCandidatesProfiles;
+
+    public function __construct(UserRepository $users, CountryRepository $countries,
+            OfferRepository $offers, StateRepository $states, ContactRepository $contacts,
+            CandidateRepository $candidates, CandidateOfferCommentRepository $candidatesOfferComments,
+            ProfileRepository $profiles, SourceRepository $sources,
+            CandidateWorkStatusRepository $candidatesWorkStatus, AddressRepository $address,
+            RelCandidateProfileRepository $relCandidatesProfiles)
 	{
+        $this->countries = $countries;
+        $this->users = $users;
+        $this->offers = $offers;
+        $this->states = $states;
+        $this->contacts = $contacts;
+        $this->candidates = $candidates;
+        $this->candidatesOfferComments = $candidatesOfferComments;
+        $this->profiles = $profiles;
+        $this->sources = $sources;
+        $this->candidatesWorkStatus = $candidatesWorkStatus;
+        $this->relCandidatesProfiles = $relCandidatesProfiles;
+        $this->address = $address;
 		$this->middleware('auth');
 	}
 
@@ -37,9 +91,9 @@ class CandidateController extends Controller {
 		$id_offer = explode("-", $id)[1];
 		$id_candidate = explode("-", $id)[2];
 		
-		$comments = \App\CandidateOfferComment::where('rel_offers_candidates_id','=',$id_relOC)->get();
-        $offer = \App\Offer::find($id_offer);
-        $candidate = \App\Candidate::find($id_candidate);
+		$comments = $this->candidatesOfferComments->search(['rel_offers_candidates_id' => $id_relOC])->get();
+        $offer = $this->offers->find($id_offer);
+        $candidate = $this->candidates->find($id_candidate);
 
 		return view('comments.CandidateOfferComments')
 		->with('id_relOC',$id_relOC)
@@ -54,13 +108,11 @@ class CandidateController extends Controller {
     	    $created_by = Auth::user()->id;
     	    $candidate_id = Input::get('candidate_id');
     	    $offer_id = Input::get('offer_id');
-			$CandidateComment = new \App\CandidateOfferComment;
-
-			$CandidateComment->created_by = $created_by;
-			$CandidateComment->rel_offers_candidates_id = Input::get('relOC');
-			$CandidateComment->comment = Input::get('comment');
+            $CandidateComment = $this->candidatesOfferComments->create(['created_by' => $created_by,
+                'rel_offers_candidates_id' => Input::get('relOC'),
+                'comment' => Input::get('comment')]);
 	        
-            if($CandidateComment->save()){
+            if($CandidateComment){
             	Session::flash('message', 'Comentario creado correctamente!!');
 				return Redirect::to('commentCO/'.Input::get('relOC').'-'. $offer_id.'-'.$candidate_id);
             }
@@ -68,43 +120,37 @@ class CandidateController extends Controller {
 
 	public function getDeleteCandidate($id = null){
 
-		$candidate = \App\Candidate::find($id);
+		$candidate = $this->candidates->find($id);
 
 		if($candidate!=null){
 
-		$candidate->is_active = 0;
+            $candidate->is_active = 0;
 
-		if($candidate->save()) {
-					Session::flash('message', 'Candidato eliminado correctamente!!');
-					return Redirect::to('candidates');
-				}
-
-
+            if($candidate->save()) {
+                Session::flash('message', 'Candidato eliminado correctamente!!');
+                return Redirect::to('candidates');
+            }
 		}else{
-				
-				return view('home');
-			
-		}
 
-	
-	}	
+				return view('home');
+
+		}
+	}
+
 	public function getEditOffer($id = null)
 	{	
 
-		$offer = \App\Offer::find($id);
+		$offer = $this->offers->find($id);
 		if($offer!=null){
 			if(Auth::user()->roles_id == 1 || Auth::user()->id == $offer->created_by){
 			
-			$recruiters = \App\User::where('roles_id','=',2)
-			->orWhere('roles_id','=',3)
-			->get();
+			$recruiters = $this->users->search(['roles_id' => 2])->orWhere('roles_id','=',3)->get();
 
 			$direccion = "";
 			$direccion .= $offer->contact->customer->address->address . ', ';
 			$direccion .= $offer->contact->customer->address->city. ' ('. $offer->contact->customer->address->post_code . ')' .   ', ';
 			$direccion .= $offer->contact->customer->address->state->state. ', ';
 			$direccion .= $offer->contact->customer->address->country->country . '.';
-			
 
 				return view('offers.edit')
 				->with('offer',$offer)
@@ -139,9 +185,9 @@ class CandidateController extends Controller {
 			->withErrors($validator);
 		} else {
 
-			$offer = \App\Offer::find($id);
+			$offer = $this->offers->find($id);
 			
-			$contact = \App\Contact::find(Input::get('contact_id'));
+			$contact = $this->contacts->find(Input::get('contact_id'));
 			
 			if (Request::hasFile('job_description')){
 				$fileName = Input::get('title').'.'.Request::file('job_description')
@@ -149,18 +195,15 @@ class CandidateController extends Controller {
                 Request::file('job_description')->move('jds', $fileName);
 				$offer->job_description = $fileName;				
 			}
-
-			$offer->title = Input::get('title');
-			$offer->description = Input::get('description');
-			$offer->open_positions = Input::get('open_positions');
-			$offer->addresses_id = $contact->customer->addresses_id;
-			$offer->from_hr = Input::get('from_hr');
-			$offer->to_hr = Input::get('to_hr');
-			$offer->salary_min = Input::get('salary_min');
-			$offer->salary_max = Input::get('salary_max');
-			$offer->contacts_id = Input::get('contact_id');
+            $this->offers->update($offer, ['title' =>  Input::get('title'),
+                'description' =>  Input::get('description'),
+                'open_positions' => Input::get('open_positions'),
+                'addresses_id' => $contact->customer->addresses_id,
+                'from_hr' => Input::get('from_hr'), 'to_hr' => Input::get('to_hr'),
+                'salary_min' => Input::get('salary_max'), 'salary_max' => Input::get('salary_max'),
+                'contacts_id' => Input::get('contact_id')]);
 			
-			if($offer->save()){
+			if($offer){
 				Session::flash('message', 'Oferta actualizada correctamente!!');
 				return Redirect::to('offer/'.$id);
 			}
@@ -169,9 +212,7 @@ class CandidateController extends Controller {
 
 	public function getAddCandidateOffer($id = null)
 	{
-	
-		
-		$offer = \App\Offer::find($id);
+		$offer = $this->offers->find($id);
 
 		return view('candidates.assignCandidateOffer')
 		->with('offer',$offer);
@@ -180,9 +221,7 @@ class CandidateController extends Controller {
 
 	public function getAddOfferCandidate($id = null)
 	{
-	
-
-		$candidate = \App\Candidate::find($id);
+		$candidate = $this->candidates->find($id);
 
 		return view('candidates.assignOfferCandidate')
 		->with('candidate',$candidate);
@@ -193,11 +232,10 @@ class CandidateController extends Controller {
 	public function getAddCandidate()
 	{
 	
-		$profiles = \App\Profile::where('is_active','=',1)
-		->get();
-		$countries = \App\Country::orderBy('country','ASC')->get();
-		$sources = \App\Source::all();
-		$workstatus = \App\CandidateWorkStatus::all();
+		$profiles = $this->profiles->search(['is_active' => 1])->get();
+		$countries = $this->countries->search()->get();
+		$sources = $this->sources->search()->get();
+		$workstatus = $this->candidatesWorkStatus->search()->get();
 
 		return view('candidates.new')
 		->with('countries',$countries)
@@ -210,14 +248,13 @@ class CandidateController extends Controller {
 	public function getEditCandidate($id = null)
 	{
 		
-		$candidate = \App\Candidate::find($id);
-		$profiles = \App\Profile::where('is_active','=',1)
-		->get();
-		$countries = \App\Country::all();
-		$states = \App\State::where('countries_id','=',$candidate->address->countries_id)->get();
-		$sources = \App\Source::all();
-		$workstatus = \App\CandidateWorkStatus::all();
-		$profiles_c = \App\RelCandidateProfile::where('candidates_id','=',$candidate->id)->get();
+		$candidate = $this->candidates->find($id);
+		$profiles = $this->profiles->search(['is_active' => 1])->get();
+		$countries = $this->countries->search()->get();
+		$states = $this->states->search(['countries_id' => $candidate->address->countries_id])->get();
+		$sources = $this->sources->search()->get();
+		$workstatus = $this->candidatesWorkStatus->search()->get();
+		$profiles_c = $this->relCandidatesProfiles->search(['candidates_id' => $candidate->id])->get();
         
         foreach ($profiles_c as $profile) {
         	$candidate_profile[] = $profile->profiles_id;
@@ -225,7 +262,7 @@ class CandidateController extends Controller {
 
 		return view('candidates.edit')
 		->with('candidate',$candidate)
-		->with('candidate_profile',$candidate_profile)
+		//->with('candidate_profile',$candidate_profile)
 		->with('workstatus',$workstatus)
 		->with('countries',$countries)
 		->with('states',$states)
@@ -237,7 +274,7 @@ class CandidateController extends Controller {
 	public function getViewCandidate($id = null)
 	{
 		
-		$candidate = \App\Candidate::find($id);
+		$candidate = $this->candidates->find($id);
 		
 		return view('candidates.view')
 		->with('candidate',$candidate);
@@ -245,7 +282,7 @@ class CandidateController extends Controller {
 	}
 
 		
-		public function postAddCandidate()
+		public function postAddCandidate(Request $request)
 	{	
 		
 		$rules = array(
@@ -265,59 +302,46 @@ class CandidateController extends Controller {
 		} else {
 			
 			$created_by = Auth::user()->id;
-			$candidate = new \App\Candidate;
+			$data = [];
 
 			if (Request::hasFile('original_resume')){
 				$fileName = Input::get('name').Input::get('surname').'-original.'.Request::file('original_resume')
 				->getClientOriginalExtension();
                 Request::file('original_resume')->move('cv_originales', $fileName);
-				$candidate->original_resume = $fileName;				
+				$data['original_resume'] = $fileName;
 			}
 
 			if (Request::hasFile('itwarp_resume')){
 				$fileName = Input::get('name').Input::get('surname').'-ITWformated.'.Request::file('itwarp_resume')
 				->getClientOriginalExtension();
                 Request::file('itwarp_resume')->move('cv_formateados', $fileName);
-				$candidate->itwarp_resume = $fileName;				
+				$data['itwarp_resume'] = $fileName;
 			}
 
-			$candidate->name = Input::get('name');
-			$candidate->surname = Input::get('surname');
-			$candidate->email = Input::get('email');
-			$candidate->cellphone = Input::get('cellphone');
-			$candidate->telephone = Input::get('telephone');
-			$candidate->resume = Input::get('resume');
+            $address = $this->address->create(['countries_id' => Input::get('country'),
+                'states_id' => Input::get('state'), 'city' => Input::get('city'),
+                'address' => Input::get('address'), 'post_code' => Input::get('post_code')]);
 
-			$address = new \App\Address;
-			$address->countries_id = Input::get('country');
-			$address->states_id = Input::get('state');
-			$address->city = Input::get('city');
-			$address->address = Input::get('address');
-			$address->post_code = Input::get('post_code');
-			$address->save();
+            $candidate = $this->candidates->create(array_merge($data, ['name' => Input::get('name'),
+                'surname' => Input::get('surname'), 'email' => Input::get('email'),
+                'cellphone' => Input::get('cellphone'), 'telephone' => Input::get('telephone'),
+                'resume' => Input::get('resume'), 'current_salary' => Input::get('current_salary'),
+                'intended_salary' => Input::get('intended_salary'), 'sources_id' => Input::get('sources_id'),
+                'created_by' => $created_by, 'experience_year' => Input::get('experience_year'),
+                'is_active' => 1, 'candidateworkstatus_id' => Input::get('candidateworkstatus'),
+                'addresses_id' => $address->id]));
 
-
-			$candidate->current_salary = Input::get('current_salary');
-			$candidate->intended_salary = Input::get('intended_salary');
-			$candidate->sources_id = Input::get('sources_id');
-			$candidate->created_by = $created_by;
-			$candidate->experience_year = Input::get('experience_year');
-			$candidate->is_active = 1;
-			$candidate->addresses_id = $address->id;
-			$candidate->candidateworkstatus_id = Input::get('candidateworkstatus');	
-
-			if($candidate->save()){
+			if($candidate){
 				
 				$profiles = explode(",", Input::get('profiles'));
-				foreach ($profiles as $profile) {
-					$profile_id = \App\Profile::where('profile', 'LIKE', '%'.$profile.'%')
-					->where('is_active','=',1)
-					->first()->id;
-					$relOR = new \App\RelCandidateProfile;
-					$relOR->candidates_id = $candidate->id;
-					$relOR->profiles_id = $profile_id;
-					$relOR->save();
-				}
+                if(isset($request->profiles) && Input::get('profiles')!='') {
+                    foreach ($profiles as $profile) {
+                        $profile_id = $this->profiles->search(['profile' => $profile,
+                            'is_active' => 1])->first()->id;
+                        $relOR = $this->relCandidatesProfiles->create(['candidates_id' => $candidate->id,
+                            'profiles_id' => $profile_id]);
+                    }
+                }
 				
 				Session::flash('message', 'Candidato creado correctamente!!');
 				return Redirect::to('addcandidate');
@@ -342,7 +366,7 @@ class CandidateController extends Controller {
 
 	}
 
-	public function postEditCandidate()
+	public function postEditCandidate(Request $request)
 	{	
 		
 		$rules = array(
@@ -403,15 +427,17 @@ class CandidateController extends Controller {
 				
 				\App\RelCandidateProfile::where('candidates_id','=',$candidate->id)->delete();
 				$profiles = explode(",", Input::get('profiles'));
-				foreach ($profiles as $profile) {
-					$profile_id = \App\Profile::where('profile', 'LIKE', '%'.$profile.'%')
-					->where('is_active','=',1)
-					->first()->id;
-					$relOR = new \App\RelCandidateProfile;
-					$relOR->candidates_id = $candidate->id;
-					$relOR->profiles_id = $profile_id;
-					$relOR->save();
-				}
+				if(isset($request->profiles) && Input::get('profiles')!='') {
+                    foreach ($profiles as $profile) {
+                        $profile_id = \App\Profile::where('profile', 'LIKE', '%' . $profile . '%')
+                            ->where('is_active', '=', 1)
+                            ->first()->id;
+                        $relOR = new \App\RelCandidateProfile;
+                        $relOR->candidates_id = $candidate->id;
+                        $relOR->profiles_id = $profile_id;
+                        $relOR->save();
+                    }
+                }
 				
 				Session::flash('message', 'Candidato actualizado correctamente!!');
 				return Redirect::to('candidate/'.$candidate_id);
@@ -548,6 +574,9 @@ class CandidateController extends Controller {
 	{
 
 		$offer = \App\Offer::find(Input::get('offers_id'));
+		if(!$offer){
+		    return redirect()->back()->withErrors('No existe la oferta a asignar');
+        }
 				
 		$rules = array(
 			'candidates_id' => 'required',

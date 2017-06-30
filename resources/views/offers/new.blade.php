@@ -1,11 +1,21 @@
-@extends('app')
+@extends('admin')
+@section('page-header')
+	<h1>
+		Crear oferta laboral
+		<small></small>
+	</h1>
+	<ol class="breadcrumb">
+		<li><a href="/"><i class="fa fa-dashboard"></i> Inicio</a></li>
+		<li class="active">Nueva oferta</li>
+	</ol>
+@endsection
 
 @section('content')
 <div class="container-fluid">
 	<div class="row">
-		<div class="col-md-8 col-md-offset-2">
+		<div class="col-md-12">
 			<div class="panel panel-default">
-				<div class="panel-heading">Nuevo Oferta Laboral</div>
+				<div class="panel-heading">Nueva Oferta Laboral</div>
 				<div class="panel-body">
 					@if (count($errors) > 0)
 					<div class="alert alert-danger">

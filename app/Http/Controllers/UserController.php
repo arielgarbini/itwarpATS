@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Repositories\RoleRepository;
+use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
@@ -17,8 +19,14 @@ class UserController extends Controller {
 	 *
 	 * @return void
 	 */
-	 public function __construct()
+	private $roles;
+
+	private $users;
+
+	public function __construct(RoleRepository $roles, UserRepository $users)
 	{
+	    $this->roles = $roles;
+	    $this->users = $users;
 		$this->middleware('auth');
 	} 
 
@@ -30,10 +38,10 @@ class UserController extends Controller {
 	public function getEditProfile($id = null)
 	{	
 
-		$user = \App\User::find($id);
+		$user = $this->users->find($id);
 		if($user!=null){
 			if(Auth::user()->roles_id == 1 || Auth::user()->id == $id){
-				$roles = \App\Rol::all();
+				$roles = $this->roles->search()->get();
 				return view('users.edit')
 				->with('user',$user)
 				->with('roles',$roles);
@@ -66,19 +74,16 @@ class UserController extends Controller {
 			->withErrors($validator);
 		} else {
 
-			$user = \App\User::find($id);
-		
-			$user->name = Input::get('name');
-			$user->surname = Input::get('surname');
-			$user->email = Input::get('email');
-			$user->roles_id = Input::get('rol');
-			$password = Input::get('password');
+			$user = $this->users->find($id);
+		    $this->users->update($user, ['name' => Input::get('name'), 'surname' => Input::get('surname'),
+                'email' => Input::get('email'), 'roles_id' => Input::get('rol'),
+                'password' => Input::get('password')]);
 			if(!empty($password)){
 				$user->password = bcrypt($password);
 				}
 			}
 		}else {
-			$user = \App\User::find($id);
+			$user = $this->users->find($id);
 			$password = Input::get('password');
 			if(!empty($password)){
 				$user->password = bcrypt($password);
@@ -94,7 +99,7 @@ class UserController extends Controller {
 
 	public function getAddUser()
 	{
-		$roles = \App\Rol::all();
+		$roles = $this->roles->search()->get();
 		return view('users.new')
 		->with('roles',$roles);
 
@@ -118,15 +123,9 @@ class UserController extends Controller {
 			->withErrors($validator)
 			->withInput();
 		} else {
-		
-			$user = new \App\User;
-
-			$user->name = Input::get('name');
-			$user->surname = Input::get('surname');
-			$user->email = Input::get('email');
-			$user->password = bcrypt(Input::get('password'));
-			$user->roles_id = Input::get('rol');
-			$user->is_active = 1;
+		    $user = $this->users->create(['name' => Input::get('name'), 'surname' => Input::get('surname'),
+                'email' => Input::get('email'), 'password' => Input::get('password'),
+                'roles_id' => Input::get('rol'), 'is_active' => 1]);
 
 			if($user->save()){
 				Session::flash('message', 'Usuario creado correctamente!!');
@@ -139,8 +138,7 @@ class UserController extends Controller {
 	public function listUsers()
 	{
 
-		$usuarios = \App\User::where('is_active','=','1')
-		->get();
+		$usuarios = $this->users->search(['is_active' => '1'])->get();
 
 		return view('users.list')->with('usuarios',$usuarios);
 
@@ -149,7 +147,7 @@ class UserController extends Controller {
 	public function getDeleteUser( $id = null )
 	{
 
-		$user = \App\User::find($id);
+		$user = $this->users->find($id);
 				
 		if($user!=null){
 

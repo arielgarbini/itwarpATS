@@ -1,9 +1,19 @@
-@extends('app')
+@extends('admin')
+@section('page-header')
+	<h1>
+		Perfiles It
+		<small></small>
+	</h1>
+	<ol class="breadcrumb">
+		<li><a href="/"><i class="fa fa-dashboard"></i> Inicio</a></li>
+		<li class="active">Perfiles</li>
+	</ol>
+@endsection
 
 @section('content')
 <div class="container-fluid">
 	<div class="row">
-		<div class="col-md-3 col-md-offset-3">
+		<div class="col-md-6">
 			<div class="panel panel-default">
 				<div class="panel-heading">@if(isset($profile)) <b>Editar Perfil</b> @else <b>Nuevo Perfil</b> @endif </div>
 
@@ -31,7 +41,7 @@
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-md-6 col-md-offset-3">
+		<div class="col-md-12">
 			<div class="panel panel-default">
 				<div class="panel-heading"><b>Perfiles IT</b> </div>
 				<div class="panel-body">

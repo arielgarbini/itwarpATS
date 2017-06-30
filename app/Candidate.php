@@ -6,6 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Candidate extends Model
 {
+    protected $fillable = ['name', 'surname', 'email', 'cellphone',
+        'telephone', 'resume', 'itwarp_resume', 'original_resume', 'created_by',
+        'current_salary', 'intended_salary', 'sources_id', 'experience_year',
+        'is_active', 'addresses_id', 'candidateworkstatus_id'];
+
     protected $table = 'candidates';
 
     public function address()

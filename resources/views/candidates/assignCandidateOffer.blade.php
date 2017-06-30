@@ -1,4 +1,14 @@
-@extends('app')
+@extends('admin')
+@section('page-header')
+	<h1>
+		Asignar candidato a la oferta
+		<small>{{$offer->title}}</small>
+	</h1>
+	<ol class="breadcrumb">
+		<li><a href="/"><i class="fa fa-dashboard"></i> Inicio</a></li>
+		<li class="active">Asignar Candidato</li>
+	</ol>
+@endsection
 
 @section('content')
 <div class="container-fluid">

@@ -1,4 +1,14 @@
-@extends('app')
+@extends('admin')
+@section('page-header')
+	<h1>
+		Listado de Ofertas
+		<small></small>
+	</h1>
+	<ol class="breadcrumb">
+		<li><a href="/"><i class="fa fa-dashboard"></i> Inicio</a></li>
+		<li class="active">Ofertas</li>
+	</ol>
+@endsection
 
 @section('content')
 
@@ -54,7 +64,8 @@
 	</div>
 </div>
 @endif
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+@endsection
+@section('scripts')
 <script src="{{asset('js/stupidtable.js')}}"></script>
 <script>  $("#simpleTable").stupidtable(); </script>
 @endsection

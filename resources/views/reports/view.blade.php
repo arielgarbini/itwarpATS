@@ -1,4 +1,15 @@
-@extends('app')
+@extends('admin')
+@section('page-header')
+	<h1>
+		Listado de Reportes Generales
+		<small></small>
+	</h1>
+	<ol class="breadcrumb">
+		<li><a href="/"><i class="fa fa-dashboard"></i> Inicio</a></li>
+		<li class="active">Reporte</li>
+	</ol>
+@endsection
+
 
 @section('content')
 
@@ -6,7 +17,7 @@
                     <div class="alert alert-info">{{ Session::get('message') }}</div>
                     @endif
 <div class="row">
-		<div class="col-md-10 col-md-offset-1">
+		<div class="col-md-12">
 			<div class="panel panel-default">
 
 				<div class="panel-heading"><b>Reporte General</b></div>

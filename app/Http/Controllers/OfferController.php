@@ -146,15 +146,17 @@ class OfferController extends Controller {
 			$offer->contacts_id = Input::get('contact_id');
 			$offer->offerstatus_id = Input::get('offerstatus');
 		
-			if($offer->save()){
-				
-                    \App\RelOfferRecruiter::where('offers_id','=',$offer->id)->delete();
+			if($offer->save()) {
+
+                \App\RelOfferRecruiter::where('offers_id', '=', $offer->id)->delete();
+                if(Input::get('recruiters')!=''){
                     foreach (Input::get('recruiters') as $recruiter) {
-					$relOR = new \App\RelOfferRecruiter;
-					$relOR->recruiter = $recruiter;
-					$relOR->offers_id = $offer->id;
-					$relOR->save();
-				}
+                        $relOR = new \App\RelOfferRecruiter;
+                        $relOR->recruiter = $recruiter;
+                        $relOR->offers_id = $offer->id;
+                        $relOR->save();
+                    }
+                }
 				Session::flash('message', 'Oferta actualizada correctamente!!');
 				return Redirect::to('offer/'.$id);
 			}

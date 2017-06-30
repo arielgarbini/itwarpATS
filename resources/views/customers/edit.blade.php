@@ -1,5 +1,14 @@
-@extends('app')
-
+@extends('admin')
+@section('page-header')
+	<h1>
+		Editar Cliente
+		<small>{{ $cliente->company_name }}</small>
+	</h1>
+	<ol class="breadcrumb">
+		<li><a href="/"><i class="fa fa-dashboard"></i> Inicio</a></li>
+		<li class="active">Editar cliente</li>
+	</ol>
+@endsection
 @section('content')
 <div class="container-fluid">
 	<div class="row">

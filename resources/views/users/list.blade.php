@@ -1,4 +1,14 @@
-@extends('app')
+@extends('admin')
+@section('page-header')
+	<h1>
+		Listado de Usuatios
+		<small></small>
+	</h1>
+	<ol class="breadcrumb">
+		<li><a href="/"><i class="fa fa-dashboard"></i> Inicio</a></li>
+		<li class="active">Usuarios</li>
+	</ol>
+@endsection
 
 @section('content')
 <div class="container-fluid">

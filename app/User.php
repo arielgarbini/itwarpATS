@@ -23,7 +23,14 @@ class User extends Model implements AuthenticatableContract,
      */
     protected $table = 'users';
 
+    protected $fillable = ['email', 'password', 'name', 'surname', 'is_active', 'roles_id'];
+
     public $timestamps = false;
+
+    public function setPasswordAttribute($value)
+    {
+        $this->attributes['password'] = bcrypt($value);
+    }
 
     /**
      * The attributes excluded from the model's JSON form.

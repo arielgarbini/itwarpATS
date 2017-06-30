@@ -1,9 +1,19 @@
-@extends('app')
+@extends('admin')
+@section('page-header')
+	<h1>
+		Consultar Candidatos Cargados
+		<small></small>
+	</h1>
+	<ol class="breadcrumb">
+		<li><a href="/"><i class="fa fa-dashboard"></i> Inicio</a></li>
+		<li class="active">Consultar</li>
+	</ol>
+@endsection
 
 @section('content')
 <div class="container-fluid">
 	<div class="row">
-            <div class="col-md-6 col-md-offset-3">
+            <div class="col-md-9 col-md-offset-1">
 			<div class="panel panel-default">
 				<div class="panel-heading">Consultar Histórico de Candidatos Cargados!
 				</div>

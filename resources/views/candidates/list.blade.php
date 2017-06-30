@@ -1,9 +1,20 @@
-@extends('app')
+@extends('admin')
+@section('page-header')
+	<h1>
+		Listado de Candidatos
+		<small></small>
+	</h1>
+	<ol class="breadcrumb">
+		<li><a href="/"><i class="fa fa-dashboard"></i> Inicio</a></li>
+		<li class="active">Candidatos</li>
+	</ol>
+@endsection
+
 
 @section('content')
 <div class="container-fluid">
 	<div class="row">
-		<div class="col-md-10 col-md-offset-1">
+		<div class="col-md-12">
 			<div class="panel panel-default">
 				<div class="panel-heading"><b>Filtros</b> </div>
 
@@ -71,18 +82,20 @@
 							</tr>
 						</thead>
 						<tbody>
-							@foreach($candidates as $candidate)						
+							@foreach($candidates as $candidate)
 							<tr>
 								<td><a href="/viewCandidate/{{$candidate->id}}">{{ $candidate->name }}</a></td>
 								<td><a href="/viewCandidate/{{$candidate->id}}">{{ $candidate->surname }}</a></td>
 								<?php $prof = ""; ?>
+								@if(isset($candidate->profiles))
 								@foreach($candidate->profiles as $profile)
-									<?php $prof .= $profile->profile['profile'] .','; ?> 		
+									<?php $prof .= $profile->profile['profile'] .','; ?>
 								@endforeach
+								@endif
 								<?php $prof = substr_replace($prof, "", -1) ?>
 								<td>{{ $prof }}</td>
-								<td>{{ $candidate->recruiter->name .' '.$candidate->recruiter->surname }}</td>
-								<td>{{ $candidate->workStatus->status }}</td>
+								<td>@if(isset($candidate->recruiter)){{ $candidate->recruiter->name .' '.$candidate->recruiter->surname }} @endif</td>
+								<td>@if(isset($candidate->workStatus)){{ $candidate->workStatus->status }}@endif</td>
 								<td><a href= "/candidateComments/{{$candidate->id}}" class="btn btn-primary" >Comentarios</a>&nbsp;&nbsp;<a href= "/addOfferCandidate/{{$candidate->id}}" class="btn btn-warning" >Postular!</a>&nbsp;&nbsp;<a href= "/candidate/{{$candidate->id}}" class="btn btn-info" >Editar</a>@if(Auth::user()->roles_id==1 || Auth::user()->id==$candidate->created_by)&nbsp;&nbsp;
 								<a href= "/deletecandidate/{{$candidate->id}}" onClick="return confirm('¿Esta seguro? Se eliminarán todos los registros asociados.');" class="btn btn-danger" >Eliminar</a>  @endif</td>
 							</tr>

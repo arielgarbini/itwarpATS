@@ -1,11 +1,21 @@
-@extends('app')
+@extends('admin')
+@section('page-header')
+	<h1>
+		Listado de Ofertas
+		<small></small>
+	</h1>
+	<ol class="breadcrumb">
+		<li><a href="/"><i class="fa fa-dashboard"></i> Inicio</a></li>
+		<li class="active">Ofertas</li>
+	</ol>
+@endsection
 
 @section('content')
 <div class="container-fluid">
 	<div class="row">
 		<div class="col-md-12">
 			<div class="panel panel-default">
-				<div class="panel-heading"><b>Ofertas</b>
+				<div class="panel-heading">Ofertas
 				@if(Auth::user()->roles_id!=2)	<a href= "/addoffer"  style="margin-top:-7px; float:right;" class="btn btn-success" >Nueva Oferta Laboral</a> @endif</div>
 				<div class="panel-body">
 					

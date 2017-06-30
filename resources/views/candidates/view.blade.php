@@ -1,5 +1,14 @@
-@extends('app')
-
+@extends('admin')
+@section('page-header')
+	<h1>
+		Detalle del candidato
+		<small>{{$candidate->name . ' ' . $candidate->surname}}</small>
+	</h1>
+	<ol class="breadcrumb">
+		<li><a href="/"><i class="fa fa-dashboard"></i> Inicio</a></li>
+		<li class="active">Detalle de candidato</li>
+	</ol>
+@endsection
 @section('content')
 <div class="container-fluid">
 	<div class="row">

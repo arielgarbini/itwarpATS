@@ -9,6 +9,9 @@ class Address extends Model
     protected $table = 'addresses';
 	
 	public $timestamps = false;
+
+	protected $fillable = ['countries_id', 'states_id', 'city',
+        'address', 'post_code'];
 	
 	public function country()
 	{

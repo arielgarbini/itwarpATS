@@ -1,9 +1,18 @@
-@extends('app')
-
+@extends('admin')
+@section('page-header')
+	<h1>
+		Editar Contacto de
+		<small>{{$contact->customer->company_name}}</small>
+	</h1>
+	<ol class="breadcrumb">
+		<li><a href="/"><i class="fa fa-dashboard"></i> Inicio</a></li>
+		<li class="active">Editar Contacto</li>
+	</ol>
+@endsection
 @section('content')
 <div class="container-fluid">
 	<div class="row">
-		<div class="col-md-8 col-md-offset-2">
+		<div class="col-md-12">
 			<div class="panel panel-default">
 				<div class="panel-heading">Editar contacto de {{$contact->customer->company_name}}</div>
 				<div class="panel-body">

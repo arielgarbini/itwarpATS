@@ -1,9 +1,19 @@
-@extends('app')
+@extends('admin')
+@section('page-header')
+	<h1>
+		Candidatos de la oferta
+		<small>{{$offerTitle}}</small>
+	</h1>
+	<ol class="breadcrumb">
+		<li><a href="/"><i class="fa fa-dashboard"></i> Inicio</a></li>
+		<li class="active">Candidatos de la oferta</li>
+	</ol>
+@endsection
 
 @section('content')
 <div class="container-fluid">
 	<div class="row">
-		<div class="col-md-10 col-md-offset-1">
+		<div class="col-md-12">
 			<div class="panel panel-default">
 				<div class="panel-heading"><b>Candidatos de la oferta {{$offerTitle}}</b>
 				<a href= "/addCandidateOffer/{{$offerID}}"  style="margin-top:-7px; float:right;" class="btn btn-success" >Asignar Candidato</a></div>

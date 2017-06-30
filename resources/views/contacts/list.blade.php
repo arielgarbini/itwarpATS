@@ -1,9 +1,19 @@
-@extends('app')
+@extends('admin')
+@section('page-header')
+	<h1>
+		Listado de Contactos
+		<small></small>
+	</h1>
+	<ol class="breadcrumb">
+		<li><a href="/"><i class="fa fa-dashboard"></i> Inicio</a></li>
+		<li class="active">Contactos</li>
+	</ol>
+@endsection
 
 @section('content')
 <div class="container-fluid">
 	<div class="row">
-		<div class="col-md-6 col-md-offset-3">
+		<div class="col-md-12">
 			<div class="panel panel-default">
 				<div class="panel-heading"><b>Contactos</b>
 					<a href= "/addcontact/{{$customer_id}}"  style="margin-top:-7px; float:right;" class="btn btn-success" >Nuevo Contacto</a> </div>

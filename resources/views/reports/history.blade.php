@@ -1,4 +1,14 @@
-@extends('app')
+@extends('admin')
+@section('page-header')
+	<h1>
+		Historial de estados del Candidato
+		<small>{{$relOC->candidate->name . ' ' . $relOC->candidate->surname}}</small>
+	</h1>
+	<ol class="breadcrumb">
+		<li><a href="/"><i class="fa fa-dashboard"></i> Inicio</a></li>
+		<li class="active">Historial de estados</li>
+	</ol>
+@endsection
 
 @section('content')
 <div class="container-fluid">

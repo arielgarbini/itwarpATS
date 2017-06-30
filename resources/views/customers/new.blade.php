@@ -1,9 +1,19 @@
-@extends('app')
+@extends('admin')
+@section('page-header')
+	<h1>
+		Crear Cliente
+		<small></small>
+	</h1>
+	<ol class="breadcrumb">
+		<li><a href="/"><i class="fa fa-dashboard"></i> Inicio</a></li>
+		<li class="active">Nuevo cliente</li>
+	</ol>
+@endsection
 
 @section('content')
 <div class="container-fluid">
 	<div class="row">
-		<div class="col-md-8 col-md-offset-2">
+		<div class="col-md-12">
 			<div class="panel panel-default">
 				<div class="panel-heading">Nuevo cliente</div>
 				<div class="panel-body">

@@ -1,4 +1,14 @@
-@extends('app')
+@extends('admin')
+@section('page-header')
+	<h1>
+		Comentarios del candidato
+		<small>{{$candidate->name . ' ' . $candidate->surname}}</small>
+	</h1>
+	<ol class="breadcrumb">
+		<li><a href="/"><i class="fa fa-dashboard"></i> Inicio</a></li>
+		<li class="active">Comentarios</li>
+	</ol>
+@endsection
 
 @section('content')
 <div class="container-fluid">
@@ -29,7 +39,9 @@
 <tr>
 								<td>{{date("d-m-Y", strtotime($comment->created_at))}}</td>
 								<td>{{$comment->user->name . ' ' . $comment->user->surname}}</td>
-								<td>{{$comment->comment}}</td>
+								<td></td>
+								<td></td>
+	<td>{{$comment->comment}}</td>
 </tr>
 							@endforeach
                                                         @foreach($comments as $comment)
